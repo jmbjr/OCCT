@@ -1,4 +1,4 @@
-name: Build OCCT
+name: Build OCCT with Docker
 
 on:
   push:
@@ -9,31 +9,21 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container: 
+      image: ghcr.io/<your-username>/<repository-name>:<tag>
 
     steps:
     - uses: actions/checkout@v2
       name: Checkout code
 
-    - name: Install dependencies
+    # This step is to adjust permissions to match the user in the container, if necessary.
+    # It's common for the container user to be root, which may lead to permission issues.
+    - name: Adjust permissions
       run: |
-        sudo apt-get update
-        sudo apt-get install -y cmake
-        sudo apt-get install -y libfreetype6-dev
-        sudo apt-get install -y tcl-dev tk-dev
-
-    - name: Configure CMake
+        sudo chown -R 1001:1001 .
+    
+    - name: Run build
       run: |
-        mkdir build
-        cd build
-        cmake .. -DCMAKE_BUILD_TYPE=Release
-
-    - name: Build
-      run: |
-        cd build
-        make -j2
-
-    - name: Archive artifacts
-      uses: actions/upload-artifact@v2
-      with:
-        name: occt-build-artifacts
-        path: build/*
+        # Custom build commands if not included in the Docker CMD or ENTRYPOINT,
+        # or trigger the default CMD by simply running:
+        echo "Build steps are defined in the Docker image"
