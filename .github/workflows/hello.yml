@@ -1,1 +1,24 @@
+name: OCCT Hello World Example
 
+on: [push]
+
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/jmbjr/occt:latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install g++
+      run: apt-get update && apt-get install -y g++
+
+    - name: Compile the OCCT hello world application
+      run: |
+        g++ -o hello_occt hello_occt.cpp -I/usr/local/include/opencascade -L/usr/local/lib -lTKernel -lTKBRep -lTKPrim
+
+    - name: Run the application
+      run: ./hello_occt
