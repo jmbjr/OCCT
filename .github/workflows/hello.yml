@@ -1,6 +1,9 @@
 name: OCCT Hello World Example
 
-on: [push]
+on:
+  push:
+    branches:
+      - github_actions  # Trigger on push to specific branch, adjust as needed
 
 jobs:
   build-and-run:
