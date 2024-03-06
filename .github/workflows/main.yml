@@ -1,0 +1,39 @@
+name: Build OCCT
+
+on:
+  push:
+    branches: [ github_actions ]
+  pull_request:
+    branches: [ github_actions ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      name: Checkout code
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake
+        sudo apt-get install -y libfreetype6-dev
+        sudo apt-get install -y tcl-dev tk-dev
+
+    - name: Configure CMake
+      run: |
+        mkdir build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      run: |
+        cd build
+        make -j2
+
+    - name: Archive artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: occt-build-artifacts
+        path: build/*
