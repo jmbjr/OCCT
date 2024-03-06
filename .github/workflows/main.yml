@@ -1,29 +1,32 @@
-name: Build OCCT with Docker
+name: Build and Push Docker Image
 
 on:
   push:
-    branches: [ github_actions ]
-  pull_request:
-    branches: [ github_actions ]
+    branches:
+      - github_actions  # Trigger on push to specific branch, adjust as needed
 
 jobs:
-  build:
+  build-and-push-image:
     runs-on: ubuntu-latest
-    container: 
-      image: ghcr.io/<your-username>/<repository-name>:<tag>
+    permissions:
+      contents: read
+      packages: write
 
     steps:
-    - uses: actions/checkout@v2
-      name: Checkout code
-
-    # This step is to adjust permissions to match the user in the container, if necessary.
-    # It's common for the container user to be root, which may lead to permission issues.
-    - name: Adjust permissions
-      run: |
-        sudo chown -R 1001:1001 .
-    
-    - name: Run build
-      run: |
-        # Custom build commands if not included in the Docker CMD or ENTRYPOINT,
-        # or trigger the default CMD by simply running:
-        echo "Build steps are defined in the Docker image"
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/occt:latest  # Replace '/occt' with your repository's name
